@@ -1,0 +1,43 @@
+//openaiのchatGPT APIを叩く
+function requestGPT3(text){
+  //API Keyを取得する
+  let prop = PropertiesService.getScriptProperties();
+  let apikey = prop.getProperty("openaikey");
+
+  //chatGPTのエンドポイントURL
+  var url = "https://api.openai.com/v1/chat/completions";
+
+  //リクエストヘッダ
+  let header = {
+    "Authorization":"Bearer "+ apikey,
+    "Content-type": "application/json",
+  }
+
+  //リクエストボディを作成
+  let payload = {
+    "model": "gpt-3.5-turbo",
+    "max_tokens" : 2048,  //最大値は2048まで
+    "temperature" : 1.0,  //最大値は2.0
+    "messages": [{"role": "user", "content": text}]
+  }
+
+  //リクエストオプション
+  let options = {
+    "muteHttpExceptions" : true,
+    "headers": header, 
+    "method": "POST",
+    "payload": JSON.stringify(payload)
+  }
+
+  //Open AIにリクエスト実行
+  const res = UrlFetchApp.fetch(url, options);
+
+  //レスポンスデータを取り出す
+  let result = JSON.parse(res.getContentText());
+
+  //改行コードをリプレース
+  let response = result.choices[0].message.content;
+  
+  //OpenAIのAPIレスポンスを戻り値で返却
+  return response;
+}
